@@ -9,6 +9,7 @@
  */
 package cn.bw.api.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,10 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 /**
  * 〈TODO〉<br> 
  *
@@ -30,10 +35,11 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @Configuration
 @EnableSwagger2
+@Slf4j
 public class Swagger2Config {
 
     @Autowired
-    private Environment environment;
+    private EnvVar envVar;
 
     @Bean
     public Docket createRestApi() {
@@ -48,12 +54,25 @@ public class Swagger2Config {
     }
 
     private ApiInfo apiInfo() {
-        String applicationName = environment.getProperty("spring.application.name");
+        InetAddress localHost = null;
+        String ip = "";
+        try {
+            localHost = Inet4Address.getLocalHost();
+            ip = localHost.getHostAddress();
+        } catch (UnknownHostException e) {
+            log.error(e.getMessage(),e);
+        }
+        String applicationName = envVar.getString("spring.application.name");
+        String contextPath = envVar.getString("server.servlet.context-path");
+        String port = envVar.getString("server.port");
+        if("-1".equals(port)){
+            port = "8888";
+        }
         return new ApiInfoBuilder()
                 .title(applicationName)
-                .description("fitz swagger2 for demo")
-                .termsOfServiceUrl("http://localhost:8080/swagger-ui.html")
-                .version(environment.getProperty("maven.project.version"))
+                .description("swagger2离线文档示例")
+                .termsOfServiceUrl("http://"+ip+":" + port + contextPath+"/swagger-ui.html")
+                .version(envVar.getString("maven.project.version"))
                 .build();
     }
 

@@ -1,9 +1,13 @@
-== Chapter of manual content 1
+== 约定
 
-This is some dummy text
+适用于全文
 
-=== Sub chapter
+=== 约定一
 
-Dummy text of sub chapter
+该服务仅适用于内部使用，请勿泄漏该文档具体信息
+
+=== 约定二
+
+如对文档内容有异议，请及时联系Developer Team
 
 

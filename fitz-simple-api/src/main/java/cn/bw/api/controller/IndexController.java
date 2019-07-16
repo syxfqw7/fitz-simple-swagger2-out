@@ -9,13 +9,14 @@
  */
 package cn.bw.api.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Collections;
 import java.util.Map;
@@ -29,7 +30,17 @@ import java.util.Map;
  */
 @RestController
 @Api(value = "/", tags = "index", description = "Operations about index")
+@ApiResponses(value = {
+        @ApiResponse(code = 200, message = "查询成功"),
+        @ApiResponse(code = 404, message = "查询失败")
+})
 public class IndexController {
+
+    @Autowired
+    private Environment environment;
+
+    @Autowired
+    private WebApplicationContext wac;
 
     @ApiOperation(value="根路径", notes="根路径notes")
     @GetMapping("/")
@@ -37,11 +48,17 @@ public class IndexController {
         return Collections.singletonMap("message", "Hello World");
     }
 
-    @ApiOperation(value="hello中文", notes="hellonotes中文")
+    @ApiOperation(value="根据msg查询文章内容", notes="根据msg关键字查询文章内容,模糊查询")
     @ApiImplicitParam(name = "msg", value = "信息", required = true, dataType = "String")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "查询成功"),
+            @ApiResponse(code = 404, message = "查询失败")
+    })
     @GetMapping("/hello")
     public String hello(@RequestParam(required =true) String msg) {
-        return "hello, " + msg;
+        String port = environment.getProperty("server.port");
+        String contextPath = wac.getServletContext().getContextPath();
+        return "hello, " + msg + ",port: " +port + ",contextPath: "+contextPath;
     }
 
     @PostMapping("/helloP")
